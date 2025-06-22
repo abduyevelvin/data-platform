@@ -57,12 +57,22 @@ The `Dockerfile` defines a multi-stage build:
 - **CD Pipeline (`azure-pipelines-cd.yaml`):**  
   Triggered after a successful CI run and a merge to `develop`. It deploys the latest image to Kubernetes using Helm.
 
+Here is an updated Helm section for your `README.md`:
+
+---
+
 ## Helm Chart
 
-The `helm` directory contains:
-- `Chart.yaml`: Helm chart metadata
-- `values.yaml`: Default configuration values
-- `templates/`: Kubernetes resource templates
+The `helm` directory contains everything needed for Kubernetes deployment:
+
+- `Chart.yaml`: Helm chart metadata.
+- `values.yaml`: Default configuration values.
+- `templates/`: Contains Kubernetes resource templates:
+    - `configmap.yaml`: Stores configuration data such as the drive path and maximum file size.
+    - `deployment.yaml`: Main deployment definition, including container settings, environment variables, and health/liveness probes.
+    - `hpa.yaml`: Defines Horizontal Pod Autoscaler for automatic scaling based on resource usage.
+    - `service.yaml`: Exposes the application as a Kubernetes service.
+    - `_helpers.tpl`: Contains reusable template helpers for consistent naming and labeling across resources.
 
 **To deploy manually with Helm:**
 ```sh
@@ -71,6 +81,8 @@ helm upgrade --install drive-service helm/drive-service \
   --set image.repository=<your-dockerhub-username>/drive-service \
   --set image.tag=<image-tag>
 ```
+
+The Helm chart manages configuration, deployment, scaling, and service exposure for the application.
 
 ## Deployment Flow
 
