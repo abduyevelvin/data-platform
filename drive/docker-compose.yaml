@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  drive-service:
+    image: drive-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DATA_PLATFORM_DRIVE_PATH: /data/drive
+      DATA_PLATFORM_FILE_MAX_SIZE: 5242880
+      SPRING_APPLICATION_JSON: |
+        {"data.platform.drive.path":"/data/drive","data.platform.file.max.size":5242880}
+    volumes:
+      - "C:/Users/Elvin.Abduyev/Downloads/test driver:/data/drive"

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "drive-service.fullname" . }}
+  labels:
+    {{ include "drive-service.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: 8080
+  selector:
+    {{ include "drive-service.selectorLabels" . | nindent 4 }}

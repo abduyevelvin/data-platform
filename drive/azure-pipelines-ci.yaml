@@ -1,0 +1,49 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - bugfix/*
+      - task/*
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: pipeline-variables # Contains path and file max size for data platform drive: /data/drive and 10,485,760
+  - group: dockerhub-credentials # Contains DOCKERHUB_USERNAME and DOCKERHUB_PASSWORD
+  - name: imageName
+    value: drive-service
+  - name: dockerHubRepo
+    value: <your-dockerhub-username>/drive-service
+  - name: tag
+    value: $(Build.SourceBranchName)-$(Build.BuildId)
+
+name: $(tag)
+
+stages:
+  - stage: BuildTestAndPush
+    displayName: Build, Test, and Push Docker Image
+    jobs:
+      - job: build
+        steps:
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean package'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.21'
+
+          - script: |
+              echo $(DOCKERHUB_PASSWORD) | docker login -u $(DOCKERHUB_USERNAME) --password-stdin
+            displayName: 'Login to Docker Hub'
+
+          - script: |
+              docker build \
+                --build-arg DATA_PLATFORM_DRIVE_PATH=$(dataPlatformDrivePath) \
+                --build-arg DATA_PLATFORM_FILE_MAX_SIZE=$(dataPlatformFileMaxSize) \
+                -t $(dockerHubRepo):$(tag) .
+              docker push $(dockerHubRepo):$(tag)
+            displayName: 'Build and Push Docker Image'
+
+          - publish: $(System.DefaultWorkingDirectory)
+            artifact: drop

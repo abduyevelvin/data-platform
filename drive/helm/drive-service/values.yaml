@@ -1,0 +1,45 @@
+# Default values for drive-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Replica count for the deployment
+replicaCount: 1
+
+# Image configuration for the drive-service, including repository, tag, and pull policy
+image:
+  repository: mydockeruser/drive-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: drive-service
+fullNameOverride: drive-service
+
+# Service configuration for the drive-service, including type and port
+service:
+  type: ClusterIP
+  port: 80
+
+# environment variables for the drive-service
+env:
+  DATA_PLATFORM_DRIVE_PATH: "/data/drive"
+  DATA_PLATFORM_FILE_MAX_SIZE: "10485760"
+
+# resource requests and limits for the drive-service
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 800m
+    memory: 1024Mi
+
+# autoscaling configuration for the drive-service
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+
+# nodeSelector kubernetes io/os configuration for the drive-service
+kubernetes:
+  os: linux

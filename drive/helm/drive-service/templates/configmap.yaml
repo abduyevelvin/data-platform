@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "drive-service.fullname" . }}
+  labels:
+    {{ include "drive-service.labels" . | nindent 4 }}
+data:
+  dataPlatformDrivePath: {{ .Values.env.DATA_PLATFORM_DRIVE_PATH | quote }}
+  dataPlatformFileMaxSize: {{ .Values.env.DATA_PLATFORM_FILE_MAX_SIZE | quote }}

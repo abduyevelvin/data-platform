@@ -1,0 +1,42 @@
+trigger: none  # Prevent direct triggering
+
+parameters:
+  - name: imageTag
+    type: string
+    default: $[ resources.pipeline.build.runName ]
+
+resources:
+  pipelines:
+    - pipeline: build
+      source: CI
+      trigger:
+        branches:
+          include:
+            - develop   # Triggers CD on merge to develop from CI pipeline
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: pipeline-variables
+  - group: dockerhub-credentials
+  - name: dockerHubRepo
+    value: <your-dockerhub-username>/drive-service
+
+stages:
+  - stage: Deploy
+    displayName: Helm Deploy to Kubernetes
+    jobs:
+      - job: deploy
+        displayName: Deploy with Helm
+        steps:
+          - task: HelmInstaller@1
+            inputs:
+              helmVersionToInstall: 'latest'
+
+          - script: |
+              helm upgrade --install drive-service helm/drive-service \
+                --values helm/drive-service/values.yaml \
+                --set image.repository=$(dockerHubRepo) \
+                --set image.tag=$(resources.pipeline.build.runName)
+            displayName: 'Deploy using Helm'
